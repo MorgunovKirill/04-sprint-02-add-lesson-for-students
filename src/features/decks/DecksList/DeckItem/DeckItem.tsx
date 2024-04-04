@@ -3,7 +3,7 @@ import { useAppDispatch } from '../../../../app/store.ts'
 import { deleteDeckTC, updateDeckTC } from '../../decks-thunks.ts'
 import { Deck } from '../../decks-api.ts'
 import { useState } from 'react'
-import { handleErrors } from '../../../../utils/handlerErrorUtils.ts'
+import { handleError } from '../../../../common/utils/handle-error.ts'
 
 type DeckProps = {
   deck: Deck
@@ -28,7 +28,7 @@ export const DeckItem = ({ deck }: DeckProps) => {
     try {
       const res = await dispatch(updateDeckTC({ id: deck.id, name: `${deck.name} updated` }))
     } catch (e) {
-      handleErrors(e);
+      handleError(e, dispatch);
     } finally {
       setIsLoading(false)
     }
