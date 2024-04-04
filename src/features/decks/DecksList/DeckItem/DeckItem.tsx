@@ -2,23 +2,36 @@ import s from './DeckItem.module.css'
 import { useAppDispatch } from '../../../../app/store.ts'
 import { deleteDeckTC, updateDeckTC } from '../../decks-thunks.ts'
 import { Deck } from '../../decks-api.ts'
+import { useState } from 'react'
+import { handleErrors } from '../../../../utils/handlerErrorUtils.ts'
 
 type DeckProps = {
   deck: Deck
 }
 
-const TEST_ACC_NAME = 'kukus'
+const TEST_ACC_NAME = 'User'
 
 export const DeckItem = ({ deck }: DeckProps) => {
   const isTestingDeck = deck.author.name === TEST_ACC_NAME
   const dispatch = useAppDispatch()
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleDeleteButtonClick = () => {
-    dispatch(deleteDeckTC(deck.id))
+    setIsLoading(true)
+    dispatch(deleteDeckTC(deck.id)).finally(() => {
+      setIsLoading(false)
+    })
   }
 
-  const handleEditButtonClick = () => {
-    dispatch(updateDeckTC({ id: deck.id, name: `${deck.name} updated` }))
+  const handleEditButtonClick = async () => {
+    setIsLoading(true)
+    try {
+      const res = await dispatch(updateDeckTC({ id: deck.id, name: `${deck.name} updated` }))
+    } catch (e) {
+      handleErrors(e);
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -39,8 +52,8 @@ export const DeckItem = ({ deck }: DeckProps) => {
 
       {isTestingDeck && (
         <div className={s.buttonBox}>
-          <button onClick={handleEditButtonClick}>update</button>
-          <button onClick={handleDeleteButtonClick}>delete</button>
+          <button onClick={handleEditButtonClick} disabled={isLoading}>update</button>
+          <button onClick={handleDeleteButtonClick} disabled={isLoading}>delete</button>
         </div>
       )}
     </li>
